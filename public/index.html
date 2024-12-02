@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gossip Semantic Search</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        padding: 0;
+        background-color: #f5f5f5;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 20px;
+      }
+      form {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      input[type='text'] {
+        padding: 10px;
+        font-size: 16px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      button {
+        padding: 10px 15px;
+        font-size: 16px;
+        color: #fff;
+        background-color: #007bff;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #0056b3;
+      }
+      .results {
+        margin-top: 20px;
+      }
+      .results ul {
+        list-style: none;
+        padding: 0;
+      }
+      .results li {
+        padding: 5px 0;
+      }
+      .results a {
+        text-decoration: none;
+        color: #007bff;
+      }
+      .results a:hover {
+        text-decoration: underline;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Gossip Semantic Search</h1>
+      <form id="search-form">
+        <input
+          type="text"
+          id="search-query"
+          placeholder="Start searching something here..."
+          required
+        />
+        <button type="submit">Search</button>
+      </form>
+      <div class="results" id="results">
+        <h3>Matches :</h3>
+        <ul></ul>
+      </div>
+    </div>
+
+    <script>
+      const form = document.getElementById('search-form');
+      const resultsContainer = document
+        .getElementById('results')
+        .querySelector('ul');
+
+      form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+
+        const query = document.getElementById('search-query').value;
+        resultsContainer.innerHTML = '';
+
+        try {
+          const response = await fetch(
+            `http://localhost:3000/search?q=${encodeURIComponent(query)}`,
+          );
+          if (!response.ok) {
+            throw new Error('Error while searching..');
+          }
+          const links = await response.json();
+
+          if (links.length === 0) {
+            resultsContainer.innerHTML = '<li>No entry found</li>';
+          } else {
+            links.forEach((link) => {
+              const li = document.createElement('li');
+              li.innerHTML = `<a href="${link}" target="_blank">${link}</a>`;
+              resultsContainer.appendChild(li);
+            });
+          }
+        } catch (error) {
+          console.error('Erreur :', error);
+          resultsContainer.innerHTML = '<li>Error, please try again.</li>';
+        }
+      });
+    </script>
+  </body>
+</html>
